@@ -1,0 +1,10 @@
+name: ArgomsCombat
+main: com.argoms.argomscombat.ArgomsCombat
+version: 0.2.7.2
+description: >
+             testing testing potato
+commands:
+  test:
+    description: testing testing bread
+  set:
+    description: sets some crap
