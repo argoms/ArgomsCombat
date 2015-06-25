@@ -17,7 +17,7 @@ public class ArgomsCombatListener implements Listener
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
-		Bukkit.broadcastMessage("A player has joined you fucks");
+		//Bukkit.broadcastMessage("A player has joined you fucks");
 		ArgomsCombat.playerSim.AddPlayer(event.getPlayer());
 		
 	}

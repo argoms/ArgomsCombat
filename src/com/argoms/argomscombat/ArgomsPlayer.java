@@ -41,7 +41,7 @@ public class ArgomsPlayer
 	public void Simulate()
 	{
 		incrementStamina();
-		if(stamina == oldStamina)
+		if(stamina != oldStamina)
 		{
 			player.sendMessage("stamina: " + stamina + "/" + (staminaMax-fatigue));
 		}
