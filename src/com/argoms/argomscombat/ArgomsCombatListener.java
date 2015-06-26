@@ -51,21 +51,19 @@ public class ArgomsCombatListener implements Listener
         {
         	ArgomsPlayer setPlayer = FAP((Player)event.getEntity());//ArgomsCombat.playerSim.FindArgomsPlayer((Player)event.getEntity());
         	Player player = (Player)event.getDamager();
-        	if(setPlayer.parrying)
+        	if(player.isBlocking())
         	{
-        		event.setDamage(0);
-        		setPlayer.Parry(event);
-        		Bukkit.broadcastMessage("parry");
-        	} else {
-        		if(player.isBlocking())
+        		if(setPlayer.parrying)
         		{
+        			event.setDamage(0);
+            		setPlayer.Parry(event);
+            		Bukkit.broadcastMessage("parry");
+        		} else {
         			setPlayer.DecreaseStamina(20);
         			event.setDamage(setPlayer.Hit(event)*0.5);
-        			Bukkit.broadcastMessage("block hit");
-        		} else {
-        			event.setDamage(setPlayer.Hit(event));
-        			Bukkit.broadcastMessage("regular hit");
         		}
+        	} else {
+        		event.setDamage(setPlayer.Hit(event));
         	}
         }
     }
@@ -75,16 +73,18 @@ public class ArgomsCombatListener implements Listener
 	{
 		ArgomsCombat.playerSim.FindArgomsPlayer(event.getPlayer()).fatigue = 0; //entering a bed removes fatigue
 	}
-	
+	/*
 	@EventHandler
 	public void onPlayerJump(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
-		if(event.getFrom().getY() + 1 == event.getTo().getY() || event.getFrom().getY() + 2 == event.getTo().getY())
+		//if(event.getFrom().getY() + 1 == event.getTo().getY() || event.getFrom().getY() + 2 == event.getTo().getY())
+		if((event.getTo().getY() > event.getFrom().getBlockY()) && (event.getTo().getY() < event.getFrom().getBlockY()+0.9) && player.isOnGround())
 		{ 
 			FAP(player).Jump();
+			Bukkit.broadcastMessage("jump");
 		}
-	}
+	}*/
 	
 	public ArgomsPlayer FAP(Player player) //quicker than typing out the whole argomscombat heirarchy  //shut up
 	{

@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.entity.*;
 
 public class ArgomsCombat extends JavaPlugin
 {
@@ -27,8 +28,14 @@ public class ArgomsCombat extends JavaPlugin
 		Bukkit.broadcastMessage("sim");
 		getServer().getPluginManager().registerEvents(new ArgomsCombatListener(), this);
 		this.saveConfig();
+
 		//player mechanics simulation
 		playerSim = new ArgomsPlayers();
+		for(int i = 0; i < Bukkit.getOnlinePlayers().size(); i++)
+		{
+			
+			playerSim.AddPlayer((Player)(Bukkit.getOnlinePlayers().toArray()[i]));
+		}
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
             @Override

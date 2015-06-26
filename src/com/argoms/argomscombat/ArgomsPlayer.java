@@ -27,7 +27,12 @@ public class ArgomsPlayer
 	
 	//internal stuff:
 	ArgomsCombat mainPlugin;
-	String damageType; 
+	String damageType;  
+	
+	//config stats:
+	double configMinStamina; //minimum stamina, default 30
+	double configStaminaRegenAmount; //stamina regen per 0.5 seconds
+	boolean configCanRegenWhileSprinting; //sets whether stamina can regenerate while sprinting
 	/*damage types:
 	 * sword
 	 * axe
@@ -72,23 +77,25 @@ public class ArgomsPlayer
 				damageType = "sword";
 			} else if(isAxe(item)) //and now if it's an axe
 			{
-				staminaConsumed = 40-(comboCounter*4);
+				staminaConsumed = 40-(comboCounter*4); //lower stam consumption on combo
 				if(canCombo)
 				{
-					comboCounter += 1;
-					player.sendMessage("combo " + comboCounter);
+					comboCounter += 1; 
+					player.sendMessage(comboCounter + "hit combo");
 
 					canCombo = false;
 				} else {
 					comboCounter = 0;
 				}
-				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
+				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() //creates the window for combos 1 second later
+				{
 				    public void run() {
 				    	canCombo = true;
 				    	player.sendMessage("combo window");
 				    }
 				}, 20L);
-				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
+				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() //closes the combo window
+				{
 				    public void run() {
 				    	if(canCombo)
 				    	{
@@ -108,9 +115,6 @@ public class ArgomsPlayer
 		{
 			damageModifier = 1;
 			//stamina -= staminaConsumed;
-		}else {
-			
-			//Bukkit.broadcastMessage(((double)stamina/(double)staminaConsumed) + "_" + stamina + "_" + staminaConsumed);
 		}
 		/*
 		if((stamina - staminaConsumed) >= 0) 
@@ -138,15 +142,21 @@ public class ArgomsPlayer
 		{
 			if(isSword(item))
 			{
-				staminaConsumed = 20;
-				parrying = true;
-		    	player.sendMessage("parry");
-				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
-				    public void run() {
-				    	parrying = false;
-				    	player.sendMessage("no more parry" + parrying);
-				    }
-				}, 4L); //should be 4l, set to 200 for debug multiboxing purposes
+				if(stamina > 19) //can only parry with sufficient stamina, does not scale
+				{
+					staminaConsumed = 20;
+					parrying = true;
+			    	//player.sendMessage("parry");
+					Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
+					    public void run() {
+					    	parrying = false;
+					    //	player.sendMessage("no more parry" + parrying);
+					    }
+					}, 4L); //should be 4l, set to 200 for debug multiboxing purposes
+				}
+			}
+			if(isAxe(item))
+			{
 			}
 		}
 		if(DecreaseStamina(staminaConsumed))
@@ -194,7 +204,7 @@ public class ArgomsPlayer
 	
 	public void Parry(EntityDamageByEntityEvent event) //triggers when the player parries
 	{
-		DecreaseStamina(20);
+		DecreaseStamina(15);
 	}
 	
 	public void Jump()
