@@ -1,6 +1,6 @@
 name: ArgomsCombat
 main: com.argoms.argomscombat.ArgomsCombat
-version: 0.2.7.2
+version: 0.2.8.1
 description: >
              testing testing potato
 commands:

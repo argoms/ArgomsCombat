@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 
 public class ArgomsPlayer 
 {
+	//general stats:
 	double stamina; //current stamina
 	double staminaRegen; //stamina regen per 0.5 seconds
 	double staminaMax; //maximum stamina
@@ -17,7 +18,14 @@ public class ArgomsPlayer
 	double staminaConsumed; //temporary value for stamina calculations
 	double damageModifier; //damage modifier calculated by stamina
 	double oldStamina; //used to decide whether or not to notify player of stamina
+	
+	//axe-specific:
+	int comboCounter; //caps at 5
+	boolean canCombo; //turns on when the combo window is open
+	//sword-specific:
 	boolean parrying;
+	
+	//internal stuff:
 	ArgomsCombat mainPlugin;
 	String damageType; 
 	/*damage types:
@@ -25,8 +33,9 @@ public class ArgomsPlayer
 	 * axe
 	 */
 	Player player; //the player entity whose stats these are
-	public ArgomsPlayer(Player i1)
+	public ArgomsPlayer(Player i1) //init stuff
 	{
+		comboCounter = 0;
 		player = i1;
 		stamina = 0;
 		staminaRegen = 10;
@@ -40,12 +49,13 @@ public class ArgomsPlayer
 	//general
 	public void Simulate()
 	{
+		//stamina regen related stuff:
 		incrementStamina();
 		if(stamina != oldStamina)
 		{
 			player.sendMessage("stamina: " + stamina + "/" + (staminaMax-fatigue));
 		}
-		stamina = oldStamina;
+		oldStamina = stamina;
 	}
 
 
@@ -62,7 +72,31 @@ public class ArgomsPlayer
 				damageType = "sword";
 			} else if(isAxe(item)) //and now if it's an axe
 			{
-				staminaConsumed = 80;
+				staminaConsumed = 40-(comboCounter*4);
+				if(canCombo)
+				{
+					comboCounter += 1;
+					player.sendMessage("combo " + comboCounter);
+
+					canCombo = false;
+				} else {
+					comboCounter = 0;
+				}
+				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
+				    public void run() {
+				    	canCombo = true;
+				    	player.sendMessage("combo window");
+				    }
+				}, 20L);
+				Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)ArgomsCombat.mainPlugin, new Runnable() {
+				    public void run() {
+				    	if(canCombo)
+				    	{
+					    	canCombo = false;
+					    	player.sendMessage("combo window ended");
+				    	}
+				    }
+				}, 23L); //should be 23l, set to 40 for debug purposes
 				damageType = "axe";
 			}
 		} else {
@@ -112,7 +146,7 @@ public class ArgomsPlayer
 				    	parrying = false;
 				    	player.sendMessage("no more parry" + parrying);
 				    }
-				}, 10L); //should be 10l, set to 200 for debug multiboxing purposes
+				}, 4L); //should be 4l, set to 200 for debug multiboxing purposes
 			}
 		}
 		if(DecreaseStamina(staminaConsumed))
@@ -149,9 +183,9 @@ public class ArgomsPlayer
 		{
 		case "sword":
 			break;
-		case "axe": //axes do double vanilla damage, 50% of which is armor ignore
+		case "axe": //axes do up to 100% more damage based on the combo counter, this damage ignores armor
 			LivingEntity a = (LivingEntity) event.getEntity();
-			a.damage(damageModifier*(event.getDamage()));
+			a.damage((comboCounter/5)*damageModifier*(event.getDamage()));
 			break;
 		}
 		return (event.getDamage())*damageModifier;
